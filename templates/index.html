@@ -11,8 +11,37 @@
 <body>
 
     <div class="row" style="height: 100vh;">
-        <div class="col-md-8 col-sm-7 col-6" style="padding: 0px;">
-          <iframe id="main-iframe" src="" style="border:none; width:100%; height: 100%;"></iframe>
+        <div class="col-md-8 col-sm-7 col-6" >
+          <!-- <iframe id="main-iframe" src="" style="border:none; width:100%; height: 100%;"></iframe> -->
+          <div class="row justify-content-md-center">
+            <div class="col-md-7">
+              <br><br>
+              <h2>MedicBot</h2>
+              <h4>About the project</h4>
+              <p style="text-align: justify;">
+                  <b>MedicBot</b> is a virtual assistant that using Artificial Intelligence is capable to guide doctors through a conversational experience 
+                  to obtain all data necessary to generate the reports and recipes digitally using Anvil technologies, and send 
+                  them to their emails. <br> 
+                  Also, <b>MedicBot</b> is able to detect any moment if the person who is talking with is the doctor 
+                  itself, through the bevahioral biometrics technologies of typingDNA. In case it detects something wrong, the doctor should enter its  
+                  password or no report will be generated.
+              </p>
+              <h4>How it works?</h4>
+              <ul>
+                <li>On the right 👉🏻 you will find a panel with a welcome message from <b>MedicBot</b>. You can tell it that you would like 
+                    to generate a new medical report or just click on the button it offers you.
+                </li>
+                <li>Once the process started, <b>MedicBot</b> will guide you asking you for both personal and medical data of your patient.</li>
+                <li>After your answer all the questions about the patient, you can directly download the medical report or 
+                    request that it be sent to the e-mail address you used to register.
+                </li>
+                <li>If you prefer, you can request to include the patient in the e-mail, just will be needed introduce its address.</li>
+              </ul>
+
+            </div>
+            
+          </div>
+
         </div>
         <div class="col-md-4 col-sm-5 col-6" style="box-shadow: rgba(0, 0, 0, 0.25) 0px 3px 12px 2px; padding-left: 0px !important;overflow-y: hidden;">
             <iframe id="iframe_chatbot" src="{{URL}}/chatbot?app=1"  allowtransparency="true" src="" frameBorder="0"></iframe>
