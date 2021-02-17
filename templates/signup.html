@@ -1,0 +1,221 @@
+{% load static humanize filters %}
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Register</title>
+
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E=" crossorigin="anonymous"></script>
+  <!-- Bootstrap -->
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+        rel="stylesheet"
+        integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+        crossorigin="anonymous">
+  <!-- Common Style -->
+  <link href="{% static 'css/common.css' %}" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
+  <!-- Latest compiled and minified CSS -->
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.2/bootstrap-table.min.css">
+  <style type="text/css">
+    .errorlist {
+        color: red;
+    }
+    li {
+      margin-top: 20px;
+    }
+    .btn {
+      background-color: rgb(49, 146, 191);
+    }
+
+    .btn:hover {
+      background-color: rgb(49, 146, 191);
+      filter: brightness(85%);
+    }
+    a {
+      color: rgb(49, 146, 191);
+    }
+  </style>
+</head>
+<body style="">
+  <div class="row" style="height: 100vh;">
+    <div class="col-md-3 col-sm-4 d-none d-sm-block" style="background: linear-gradient(to top right, rgb(19, 57, 161), rgb(49, 146, 191)); min-height: 100%; color:#fafafa">
+
+      <img src="/static/img/robot.png" style="border-radius: 100%; background-color:white; width: 100px; display: block; margin-top: 30px; margin-bottom: 30px; margin-left: auto; margin-right: auto;">
+      <h1 style="text-align:center;">MEDIC BOT</h1>
+      <br>
+      <div style="padding-left: 30px;">
+        <ul>
+          <li>
+            <h5>Create Digital Prescriptions</h5>
+          </li>
+          <li>
+            <h5>Prevent Fraud With Typing Recognition</h5>
+          </li>
+          <li>
+            <h5>AI Based Assistant</h5>
+          </li>
+        </ul>
+
+      </div>
+
+
+    </div>
+    <div class="col-md-9 col-sm-8 col-12">
+      <div class="row d-none d-sm-block" style="height: 259px; background: linear-gradient(to right, rgba(255, 255, 255, 1) 37.82%, rgba(255, 255, 255, 0) 47.9%);">
+        <img src="/static/img/banner.png" style="position: absolute; z-index: -1; right: 0px; padding: 0px; overflow: hidden"> </img>
+      </div>
+      <div class="row" style="margin-top: 30px;" >
+
+        <div class="col-md-1 col-sm-1 col-1"> </div>
+        <div class="col-md-9 col-sm-8 col-10" style="padding-bottom: 5%">
+          <h2 style="color: rgb(49, 146, 191);"> Register </h2>
+          <form method="post" id="form" >
+
+            {% csrf_token %}
+
+            <br>
+            <div class="row">
+              {% for error in form.title.errors %} <p style="color:red">{{ error }}</p> {% endfor %}
+              <div class="col-md-12 col-sm-12 col-12 input-group">
+                {{ form.title }}
+              </div>
+              <div class="col-md-1 col-sm-1 col-1"></div>
+            </div>
+
+            <br>
+            <div class="row">
+              {% for error in form.full_name.errors %} <p style="color:red">{{ error }}</p> {% endfor %}
+              <div class="col-md-12 col-sm-12 col-12 input-group">
+                {{ form.full_name }}
+              </div>
+              <div class="col-md-1 col-sm-1 col-1"></div>
+            </div>
+
+            <br>
+            <div class="row">
+              {% for error in form.address.errors %}     <p style="color:red">{{ error }}</p> {% endfor %}
+              <div class="col-md-12 col-sm-12 col-12 input-group">
+
+                {{ form.address }}
+
+              </div>
+              <div class="col-md-1 col-sm-1 col-1"></div>
+            </div>
+
+            <br>
+            <div class="row">
+              {% for error in form.phone.errors %}     <p style="color:red">{{ error }}</p> {% endfor %}
+              <div class="col-md-12 col-sm-12 col-12 input-group">
+
+                {{ form.phone }}
+
+              </div>
+              <div class="col-md-1 col-sm-1 col-1"></div>
+            </div>
+
+            <br>
+            <div class="row">
+              {% for error in form.email.errors %}     <p style="color:red">{{ error }}</p> {% endfor %}
+              <div class="col-md-12 col-sm-12 col-12 input-group">
+
+                {{ form.email }}
+
+              </div>
+              <div class="col-md-1 col-sm-1 col-1"></div>
+            </div>
+            <br>
+            <div class="row">
+              {% for error in form.password1.errors %} <p style="color:red">{{ error }}</p> {% endfor %}
+              <div class="col-md-12 col-sm-12 col-12 input-group">
+
+                {{ form.password1 }}
+
+              </div>
+              <div class="col-md-1 col-sm-1 col-1"></div>
+            </div>
+            <br>
+            <div class="row">
+              {% for error in form.password2.errors %} <p style="color:red">{{ error }}</p> {% endfor %}
+              <div class="col-md-12 col-sm-12 col-12 input-group">
+
+                {{ form.password2 }}
+
+              </div>
+              <div class="col-md-1 col-sm-1 col-1"></div>
+            </div>
+
+            <div style="display:none">
+              {{form.dna}}
+            </div>
+            <br><br>
+            <button type="submit" class="btn btn-primary">Sign Up</button>
+            &nbsp;&nbsp;
+            <a href="/login">Already have an account?</a>
+            <hr>
+            Learn more about <a href="https://www.typingdna.com">TypingDNA</a>.
+          </form>
+        </div>
+        <div class="col-md-2 col-sm-1 col-1"> </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+
+<script src="{% static 'js/popper.min.js' %}"></script>
+
+
+<script src="/static/js/autocomplete-disabler.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+<!-- Latest compiled and minified JavaScript -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.2/bootstrap-table.min.js"></script>
+<!-- Latest compiled and minified Locales -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.2/locale/bootstrap-table-es-ES.min.js"></script>
+
+<script type="text/javascript" src="https://typingdna.com/scripts/typingdna.js"></script>
+
+<script type="text/javascript">
+
+  var tdna = new TypingDNA();
+  var options = {
+      type:0,
+      // text:String,
+      // textId:Number,
+      // length: Number,
+      // targetId:String
+    }
+
+  tdna.addTarget("{{ form.full_name.auto_id }}")
+  tdna.addTarget("{{ form.email.auto_id }}")
+  tdna.addTarget("{{ form.password1.auto_id }}")
+  tdna.addTarget("{{ form.password2.auto_id }}")
+
+  new AutocompleteDisabler({showTypingVisualizer: true, showTDNALogo: true});
+
+  $(document).ready(function(){
+    visualizers = $("img[src='https://www.typingdna.com/assets/images/external/icon-48.png'")
+    for (var i = visualizers.length - 1; i >= 0; i--) {
+      $(visualizers[i]).attr("title", $(visualizers[i]).attr("alt"))
+    }
+  })
+
+  $( "#form" ).submit(function submit(){
+    console.log("asd")
+    console.log(tdna.getTypingPattern(options))
+
+    $("#{{form.dna.auto_id}}").val(tdna.getTypingPattern(options))
+    return true;
+  })
+
+</script>
+
+</html>
+
+
+
+
+
+
+

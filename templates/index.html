@@ -1,0 +1,132 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/chatbot-external.css' %}">
+
+</head>
+<body>
+
+    <div class="row" style="height: 100vh;">
+        <div class="col-md-8 col-sm-7 col-6" style="padding: 0px;">
+          <iframe id="main-iframe" src="" style="border:none; width:100%; height: 100%;"></iframe>
+        </div>
+        <div class="col-md-4 col-sm-5 col-6" style="box-shadow: rgba(0, 0, 0, 0.25) 0px 3px 12px 2px; padding-left: 0px !important;overflow-y: hidden;">
+            <iframe id="iframe_chatbot" src="{{URL}}/chatbot?app=1"  allowtransparency="true" src="" frameBorder="0"></iframe>
+        </div>
+    </div>
+</body>
+
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"
+    integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+    crossorigin="anonymous">
+</script>
+<script src="/static/js/popper.js"></script>
+<script src="/static/js/bootstrap.min.js"></script>
+
+
+<script type="text/javascript">
+
+
+// API
+$(document).ready(function(){
+
+    $("iframe#iframe_chatbot").addClass("browser-iframe")
+
+
+  $('.chat-button').click(function () {
+    window.botapi.open();
+  });
+});
+
+class ChatbotAPI {
+
+  constructor() {
+    this.iframe = "iframe#iframe_chatbot";
+    this.button = '.chat-button';
+    this.isOpen = false;
+    this.messageHandlers = []
+    this.messageHandlers.push(function(e) {
+      console.log("hola!!!!", e)
+      if (e.data.message == 'close-chatbot-window') {
+        // window.botapi.close()
+      }
+      if (e.data.message == 'show-report') {
+        console.log("JAMON")
+        $("#main-iframe").attr("src", e.data.payload.url);
+      }
+    })
+  }
+
+  postMessage(message, payload, origin) {
+    $(this.iframe)[0].contentWindow.postMessage({message: message, payload: payload}, origin)
+  }
+
+  open() {
+
+    var iframe = $(this.iframe);
+    var button = $(this.button);
+
+    if (iframe.attr("src") == "") {
+      iframe.attr("src", '{{URL}}/chatbot?app=1&key={{request.GET.key}}');
+    }
+
+    button.fadeOut();
+    setTimeout(function(){
+      iframe.slideDown();
+      iframe.show();
+    }, 250);
+    this.isOpen = true;
+  }
+
+  close() {
+    var iframe = $(this.iframe);
+    var button = $(this.button);
+    iframe.slideUp();
+    setTimeout(function() {
+      button.fadeIn();
+      button.show();
+    }, 250);
+    this.isOpen = false;
+  }
+
+  hide() {
+    if (this.isOpen) {
+      $(this.iframe).slideUp();
+    } else {
+      $(this.button).fadeIn();
+    }
+  }
+
+  show() {
+    if (this.isOpen) {
+      this.open()
+    } else {
+      this.close();
+    }
+  }
+
+  identify(data) {
+    if (data.name && data.phone && data.email) {
+      this.postMessage("identify", data)
+    }
+  }
+}
+
+window.botapi = new ChatbotAPI()
+
+
+// Message Handlers
+window.onmessage = function (e) {
+    for (var i = 0; i < window.botapi.messageHandlers.length; i++) {
+      window.botapi.messageHandlers[i](e);
+    }
+};
+
+</script>
+
+
+</html>

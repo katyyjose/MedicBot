@@ -1,0 +1,13 @@
+applications:
+- name: medic-bot
+  memory: 128M
+  instances: 1
+# This is command provided by cf -c option
+  command: bash ./run.sh
+#  New Buildpack: https://developer.ibm.com/answers/questions/8782/about-deploying-python-applications/?community=bluemix
+#  buildpack: https://github.com/ephoning/heroku-buildpack-python.git
+#  buildpack: https://github.com/cloudfoundry/python-buildpack  # Use to work doesn't now
+  buildpacks:
+    - python_buildpack
+  path: .
+  # no-route: true # Cuando una app no escucha por un puerto, no se le debe asignar ruta. Ademas se debe desactivar el health check de puerto con `cf set-health-check APP_NAME process`

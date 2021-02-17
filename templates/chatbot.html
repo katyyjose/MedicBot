@@ -1,0 +1,266 @@
+{% load static %}
+
+ <!DOCTYPE html>
+ <html>
+ <head>
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, minimum-scale=1, maximum-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <!-- Bootstrap, Jquery, Popper.js -->
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+
+
+    <!-- Monserrat Font -->
+    <link href='https://fonts.googleapis.com/css?family=Montserrat' rel='stylesheet'>
+
+    <!-- Font Awesome -->
+    <link href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+        integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+        crossorigin="anonymous"
+        rel="stylesheet">
+
+    <!-- Chatbot CSS -->
+    <!-- link href="/static/css/chatbot.css" rel=stylesheet type="text/css" -->
+    <link href="/static/css/chatbot.css" rel=stylesheet type="text/css">
+
+
+    <link rel="stylesheet" type="text/css" href="/static/slick/slick.css"/>
+    <link rel="stylesheet" type="text/css" href="/static/slick/slick-theme.css"/>
+    <!-- <link rel="stylesheet" type="text/css" href="slick/slick-theme.css"/> -->
+
+    <title>Chatbot</title>
+
+ </head>
+ <body>
+  <div class="msg_box" {% if not APP_VIEW %} style="border-radius: 0% !important;" {% endif %}>
+        <div class="msg_head">
+            <div class="logo">
+              <img align="center" src="/static/img/logo.png" >
+            </div>
+
+            {% if APP_VIEW %}
+            <div class="chat-controls">
+                <img src="/static/img/times-icon.png" class="close-icon-bot">
+            </div>
+            {% endif %}
+        </div>
+
+        <div id="ventana-chatbot" class="msg_window">
+
+            <div class="form_auth" id="form_auth" align="left" style="display: none;" >
+
+              <div class="form" >
+                 <p class="error">
+                    {% if error == 110 %}
+                      Sesión no encontrada.
+                    {% elif error == 111 %}
+                      Limite de interacciones superado.
+                    {% elif error == 112 %}
+                      Error de seguridad. Por favor intente nuevamente.
+                    {% elif error == 113 %}
+                      Sesión invalida. Por favor intente nuevamente.
+                    {% elif error == 114 %}
+                      El token de autenticación es inválido.
+                    {% elif error == 118 %}
+                      Tu voto ya fue registrado.
+                    {% elif error >= 115 %}
+                      Error de conexión. Por favor, intente mas tarde.
+                    {% endif %}
+                  </p>
+                  <br>
+                  <br>
+                  <br>
+                  <h5 align="center" class="color-text">
+                     Bienvenidos a BanescoChat
+                  </h5>
+                  <br>
+
+                  <form id="form" class="form-cedula">
+                    <div class="form-fields">
+
+                    </div>
+
+                    <button class="btn btn-primary button-primary" type="submit" id="auth-button"> Iniciar chat </button>
+                  </form>
+               </div>
+            </div>
+
+            <div id="chat-column-holder" class="msg_wrap" {% if not OPEN %} style="display: none;" {% endif %}>
+                <div class="msg_body">
+                    <div class="chatContainer" >
+                        <div class="chatCell" >
+                            <div id="scrollingChat" style="">
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- <div class="carousel-wrap">
+                  <div class="owl-carousel owl-theme msg_suggestions" id="carousel">
+                  </div>
+                </div> -->
+
+            </div>
+            <input type="hidden" id="payload-initial-message">
+            <input type="hidden" id="payload-request" class="payload">
+            <input type="hidden" id="payload-response" class="payload">
+
+          </div>
+          <footer class="msg_footer">
+
+              <div class="footer_row row">
+                <div class="textarea_wrapper">
+                  <textarea class="message-pane-input disable-autocomplete" rows="1" id="textInput"
+                            placeholder="Type a message" role="textbox"
+
+                            maxlength="1000"></textarea>
+                  <div class="chat-send-div">
+                    <a href="#" id="chat-send" onclick="ConversationPanel.sendMessage()">
+                      <i class="fas fa-paper-plane send_icon color-text" id="send_icon"></i>
+                    </a>
+                  </div>
+                </div>
+
+              </div>
+
+          </footer>
+          <input type="hidden" id="auth-token">
+
+
+    </div>
+  </body >
+
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js"
+        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+        crossorigin="anonymous">
+  </script>
+
+
+
+  <script src="/static/js/popper.js"></script>
+  <script src="/static/js/bootstrap.min.js"></script>
+
+
+
+  <script type="text/javascript" src="/static/slick/slick.min.js"></script>
+
+
+  <script type="text/javascript">
+    var APP_URL = '{{URL}}';
+    var debug = {% if DEBUG %} "{{DEBUG}}" {% else %} undefined {% endif %}
+    var recaptchaPublicKey = {% if request.GET.recaptchav2 %}'{{RECAPTCHA_V2_PUBLIC_KEY}}'{% else %}'{{RECAPTCHA_V3_PUBLIC_KEY}}'{% endif %}
+    var ASSISTANT = "{{ASSISTANT}}"
+
+
+    $(document).ready(function () {
+
+      // Abrir la ventana del chatbot
+      $('.chat-button').hide('slow');
+      $('.msg_box').show('slow');
+
+      // Setup sendMessage en el boton de enviar mensaje
+      $(".close-icon-bot").click(function() {
+
+          if ($("#auth-token").val()) {
+            // Mostrar el modal de puntuacion
+            new NPSModal().show()
+          }
+          else {
+            // Si no esta conectado, solo se cierra la ventana
+            messageHandlerManager.postMessage("close-chatbot-window", {}, "*")
+          }
+
+      })
+
+      // Si es iOS, modificamos el vertical-align de las burbujas
+      if (!!navigator.platform && /iPad|iPho|iPod/.test(navigator.platform)) {
+        $(".chatCell").attr("style", "vertical-align: bottom !important;")
+      }
+      Api.requestAuth()
+
+
+
+
+    });
+
+
+
+  </script>
+
+
+  <style type="text/css">
+    .nps-row {
+      color: white;
+      margin: 0px;
+      padding: 0px;
+    }
+
+    .nps-row > .col-11-1 {
+      padding: 0px 25px 0px 0px;
+      -ms-flex: 0 0 9.090909%;
+      flex: 0 0 9.090909%;
+      max-width: 9.090909%;
+    }
+
+    .circle {
+      font-size: 13px;
+      width: 25px;
+      height: 25px;
+      text-align: center;
+      padding-top: 4px;
+      border-radius: 100%;
+      background-color: rgba(59, 120, 101, 0.56);
+      cursor:pointer;
+    }
+
+    div.circle:hover, div.circle.selected {
+      background-color: #007953;
+    }
+  </style>
+
+
+
+  <script src="/static/js/Api.js"></script>
+  <script src="/static/js/EventHandler.js"></script>
+  <script src="/static/js/WatsonHandler.js"></script>
+  <script src="/static/js/Conversation.js"></script>
+  <script src="/static/js/autocomplete-disabler.js"></script>
+  <script type="text/javascript" src="https://typingdna.com/scripts/typingdna.js"></script>
+
+  <script type="text/javascript">
+
+    var tdna = new TypingDNA();
+    var options = {
+        type:0,
+        // text:String,
+        // textId:Number,
+        // length: Number,
+        // targetId:String
+      }
+
+    tdna.addTarget("textInput")
+
+    new AutocompleteDisabler({showTypingVisualizer: true, showTDNALogo: true});
+
+    $(document).ready(function(){
+      visualizers = $("img[src='https://www.typingdna.com/assets/images/external/icon-48.png'")
+      for (var i = visualizers.length - 1; i >= 0; i--) {
+        $(visualizers[i]).attr("title", $(visualizers[i]).attr("alt"))
+      }
+      $($(".message-pane-input")[1]).keydown(function(){
+        ConversationPanel.checkForSubmitEvent(event, this);
+      })
+    })
+
+    // $( "#form" ).submit(function submit(){
+    //   console.log("asd")
+    //   console.log(tdna.getTypingPattern(options))
+
+    //   $("#{{form.dna.auto_id}}").val(tdna.getTypingPattern(options))
+    //   return true;
+    // })
+
+  </script>
+
+
+</html>
