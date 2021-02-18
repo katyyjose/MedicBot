@@ -405,7 +405,7 @@ class BaseTypingDNA:
     def verify_pattern(self, user_id, pattern):
         url = self.endpoint + "/verify/" + user_id
 
-        payload={'tp': pattern, 'quality': 2}
+        payload={'tp': pattern, 'quality': 1}
         headers = {
           'Authorization': 'Basic ' + self.get_auth_header()
         }
@@ -424,22 +424,27 @@ class TypingHandler(WatsonHandler):
         if context.get("end_recording", False):
             context["patient_restrictions"] = input["text"]
             user_id = "user-" + str(session.user.pk)
-            verification = TypingDNA.verify_pattern(user_id, context["typing_pattern"])
+            pattern = context["typing_pattern"]
 
-            if verification.get("result", 0) == 0:
+            verification = TypingDNA.verify_pattern(user_id, pattern)
+            print(json.dumps(verification, indent=2))
+
+            if verification.get("score", 0) < 40:
                 context["success_typing"] = False
             else:
                 context["success_typing"] = True
+                TypingDNA.save_pattern(user_id, pattern)
 
         elif context.get("check_password", False):
-            print(session.user.email, input["text"])
             user_id = "user-" + str(session.user.pk)
-            verification = TypingDNA.verify_pattern(user_id, context["typing_pattern"])
+            verification = TypingDNA.verify_pattern(user_id, pattern)
+            print(json.dumps(verification, indent=2))
 
-            if verification.get("result", 0) == 0:
+            if verification.get("score", 0) < 40:
                 context["success_password"] = False
             else:
                 context["success_password"] = True
+                TypingDNA.save_pattern(user_id, pattern)
 
     def handle(self, output, context, actions, session, contextGlobal):
         if "send-email" in actions:
@@ -551,11 +556,11 @@ def admin_login(request):
             user_id = "user-" + str(user.pk)
             verification = TypingDNA.verify_pattern(user_id, form.cleaned_data["dna"])
             print(json.dumps(verification, indent=2))
-            if verification.get("result", 0) == 0:
+            if verification.get("score", 0) < 40:
                 form = forms.Login()
                 messages.error(request, "TypingDNA couldn't verify it was you. Please type as yourself.")
                 return render(request, "login.html", {'form': form})
-
+            TypingDNA.save_pattern(user_id, form.cleaned_data["dna"])
             login_auth(request, user)
             return redirect(request.GET.get('next', "/"))
 
@@ -583,7 +588,7 @@ def signup(request):
             if check.get("count", 0) + check.get("mobilecount", 0) == 0:
                 print(TypingDNA.save_pattern(user_id, form.cleaned_data["dna"]))
 
-            login_auth(request, user)
+            # login_auth(request, user)
             return redirect(request.GET.get('next', "/"))
 
             messages.error(request, "Bad email or password.")

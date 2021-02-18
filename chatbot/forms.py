@@ -31,10 +31,10 @@ class CreateUser(UserCreationForm):
     def __init__(self, *args, **kwargs):
         super(CreateUser, self).__init__(*args, **kwargs)
         for i in self.fields:
-            # if self.fields[i].label == "Phrase":
-            #     self.fields[i].widget.attrs.update({'class' : 'form-control'})
-            #     continue
-            self.fields[i].widget.attrs.update({'class' : 'form-control'})
+            if self.fields[i].label == "Phrase":
+                self.fields[i].widget.attrs.update({'class' : 'form-control'})
+                continue
+            self.fields[i].widget.attrs.update({'class' : 'form-control '})
             self.fields[i].widget.attrs.update({'placeholder' : self.fields[i].label})
 
     def clean_email(self):

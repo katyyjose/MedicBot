@@ -63,6 +63,7 @@ watsonHandlerManager.add(new BasicWatsonHandler());
 
 class PrescriptionHandler extends WatsonHandler {
   constructor() {
+    super()
     this.enablePreHandler = true
     this.enableHandler = true
   }

@@ -23,7 +23,7 @@ class BasicMessageHandler extends MessageHandler {
 
 class MessageHandlerManager {
   constructor() {
-    this.handlers = [new BasicMessageHandler, new PDFHandler]
+    this.handlers = [new BasicMessageHandler]
     this.window = window.parent
     window.onmessage = this._handle
   }
