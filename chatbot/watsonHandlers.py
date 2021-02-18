@@ -58,3 +58,6 @@ class BasicHandler(WatsonHandler):
                     output['generic'][i]['response_type'] = "text"
                     output['generic'][i]['text'] = self.addImage(img)
 
+
+
+

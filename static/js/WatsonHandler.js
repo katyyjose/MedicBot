@@ -62,28 +62,56 @@ watsonHandlerManager.add(new BasicWatsonHandler());
 
 
 class PrescriptionHandler extends WatsonHandler {
+  constructor() {
+    this.enablePreHandler = true
+    this.enableHandler = true
+  }
+  preHandle(input, context) {
+    console.log("Entre prehandler", input, context,)
+    if (context.check_password){
+      context["typing_pattern"] = tdna.getTypingPattern(options)
+    }
+  }
+
   get(json, key) {
     return json[key] != undefined ? json[key] : "";
   }
   handle(output, context){
     console.log("Entra al handler!", context)
+    if (context.start_recording){
+      tdna.reset()
+      tdna.start()
+      console.log("start recording")
+    }
+    else if (context.end_recording) {
+      console.log("end recording")
+      context["typing_pattern"] = tdna.getTypingPattern(options)
+      tdna.stop()
+
+    }
+
+    if (context.check_password) {
+      tdna.reset()
+      tdna.start()
+    }
+
     if (output.user_defined){
       var actions = output.user_defined.action
       console.log(output, actions)
       if (actions) {
         if (actions.includes('generate-report')) {
           var payload={
-              "title": "Prescription 2",
+              "title": "Prescription",
               "fontSize": 10,
               "textColor": "#333333",
               "data": {
                   "Name": this.get(context, "patient_name"),
                   "Gender": this.get(context, "patient_gender"),
                   "Age": String(this.get(context, "patient_age")),
-                  "PatientName": this.get(context, "patient_name"),
-                  "Allowance": this.get(context, "recipient"),
+                  "RecipientName": this.get(context, "recipient"),
+                  "Allowance": this.get(context, "patient_name"),
                   "DayCount": this.get(context, "rest_days"),
-
+                  "DocSign": "https://www.terragalleria.com/images-misc/signature_philip_hyde_small.jpg",
                   "Date": this.get(context, "date"),
                   "Prescription": this.get(context, "patient_illness") + ". " + this.get(context, "patient_prescription"),
                   "Clearance": this.get(context, "patient_restrictions"),
@@ -91,9 +119,12 @@ class PrescriptionHandler extends WatsonHandler {
                   "DocPhone": this.get(context, "doc_phone"),
                   "DocEmail": this.get(context, "doc_email"),
                   "DocName": this.get(context, "name"),
-                  "DocTitle": this.get(context, "doc_title")
+                  "DocTitle": this.get(context, "doc_title"),
+                  "PatientEmail": "",
+                  "SendToDoc": false,
               }
           }
+          console.log(payload)
           var url = "/report?payload=" + JSON.stringify(payload).replace("#", "%23")
           messageHandlerManager.postMessage("show-report", {url: url}, "*")
         }

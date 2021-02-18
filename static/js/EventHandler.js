@@ -18,16 +18,6 @@ class BasicMessageHandler extends MessageHandler {
 
 
 
-class PDFHandler extends MessageHandler {
-
-
-  handle(e) {
-    if (e.data.message == "pdf") {
-      if (e.data.payload != undefined) {
-      }
-    }
-  }
-}
 
 // messageHandlerManager.add(new StyleHandler)
 

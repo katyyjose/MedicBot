@@ -32,6 +32,7 @@ urlpatterns = [
     url(r'signup$', views.signup, name="signup"),
     url(r'logout$', views.admin_logout, name="admin_logout"),
     url(r'report$', views.pdf, name="pdf"),
+    url(r'instructions$', views.instructions, name="instructions"),
 
     url(r'^customize_chatbot$', views.customize_chatbot, name="customize_chatbot"),
 

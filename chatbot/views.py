@@ -280,6 +280,7 @@ class BaseChatbot:
             }
 
         except KeyError as e:
+            raise e
             return {
                 'status': 116,
                 'error': 'internal error'
@@ -418,20 +419,90 @@ class BaseTypingDNA:
 TypingDNA = BaseTypingDNA()
 
 
+class TypingHandler(WatsonHandler):
+    def preHandle(self, input, context, session : models.WatsonSession):
+        if context.get("end_recording", False):
+            context["patient_restrictions"] = input["text"]
+            user_id = "user-" + str(session.user.pk)
+            verification = TypingDNA.verify_pattern(user_id, context["typing_pattern"])
+
+            if verification.get("result", 0) == 0:
+                context["success_typing"] = False
+            else:
+                context["success_typing"] = True
+
+        elif context.get("check_password", False):
+            print(session.user.email, input["text"])
+            user_id = "user-" + str(session.user.pk)
+            verification = TypingDNA.verify_pattern(user_id, context["typing_pattern"])
+
+            if verification.get("result", 0) == 0:
+                context["success_password"] = False
+            else:
+                context["success_password"] = True
+
+    def handle(self, output, context, actions, session, contextGlobal):
+        if "send-email" in actions:
+            email = session.user.email
+
+            url = "https://colslamv2.ddns.net:5050/prescription"
+            payload={
+              "title": "Prescription",
+              "fontSize": 10,
+              "textColor": "#333333",
+              "data": {
+                  "Name": context.get("patient_name", ""),
+                  "Gender": context.get("patient_gender", ""),
+                  "Age": str(context.get("patient_age", "")),
+                  "RecipientName": context.get("recipient", ""),
+                  "Allowance": context.get("patient_name", ""),
+                  "DayCount": context.get("rest_days", ""),
+                  "DocSign": "https://www.terragalleria.com/images-misc/signature_philip_hyde_small.jpg",
+                  "Date": context.get("date", ""),
+                  "Prescription": context.get("patient_illness", "") + ". " + context.get("patient_prescription", ""),
+                  "Clearance": context.get("patient_restrictions", ""),
+                  "DocAddress": context.get("doc_address", ""),
+                  "DocPhone": context.get("doc_phone", ""),
+                  "DocEmail": email,
+                  "DocName": context.get("name", ""),
+                  "DocTitle": context.get("doc_title", ""),
+
+                  "PatientEmail": context.get("patient_email", ""),
+                  "SendToDoc": True,
+                }
+            }
+            print("\n\n\n\n\n")
+            print(json.dumps(payload, indent=2))
+
+
+            headers = {
+              'Authorization': 'Basic b1l1S2ZmNGtHWmljb0t2cVhRRkJDQkM0YklIcGN1Z086',
+              'Content-Type': 'application/json'
+            }
+
+            try:
+                response = requests.request("POST", url, headers=headers, data=json.dumps(payload), verify=False)
+                print(response.status_code)
+            except:
+                print("Falle miserablemente!")
+
+
+
+
 @csrf_exempt
 @xframe_options_exempt
 def pdf(request):
     print("entre")
     if request.method == "GET":
         if "payload" in request.GET:
-            url = "http://colslamv2.ddns.net:5050/prescription"
+            url = "https://colslamv2.ddns.net:5050/prescription"
             payload = json.loads(request.GET["payload"])
 
             headers = {
               'Authorization': 'Basic b1l1S2ZmNGtHWmljb0t2cVhRRkJDQkM0YklIcGN1Z086',
               'Content-Type': 'application/json'
             }
-            pdf = requests.request("POST", url, headers=headers, data=json.dumps(payload))
+            pdf = requests.request("POST", url, headers=headers, data=json.dumps(payload),verify=False)
             response = HttpResponse(pdf.content, content_type='application/pdf')
             response['Content-Disposition'] = 'inline; filename="report.pdf"'
             return response
@@ -454,7 +525,9 @@ def apiMessage(request):
         return JsonResponse(response)
     raise PermissionDenied
 
-
+@xframe_options_exempt
+def instructions(request):
+    return render(request, "instructions.html")
 
 @xframe_options_exempt
 def admin_login(request):

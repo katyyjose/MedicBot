@@ -126,7 +126,7 @@ var Api = (function() {
         }
 
         if (status_code >= 110) {
-          document.location.href = APP_URL+"/chatbot?e="+data.status
+          document.location.href = APP_URL+"/chatbot"+data.status
           return
         };
 
